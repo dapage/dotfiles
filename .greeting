@@ -1,0 +1,4 @@
+#!/bin/env zsh
+date
+if which figlet >/dev/null; then figlet -f slant $(echo "Dusty's Mac"); fi
+if which fortune >/dev/null; then fortune; fi
