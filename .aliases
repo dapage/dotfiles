@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew upgrade --cask; mas upgrade; brew cleanup; npm install npm -g; npm update -g; gem update --system; gem update; gem cleanup'
+alias l='colorls --group-directories-first --almost-all'
+alias ll='colorls --group-directories-first --almost-all --long' # detailed list view
+alias ~="cd $HOME"
+alias ..="cd .."
+alias reload="exec ${SHELL} -l"
+alias bci="brew cask install"
+alias bi="brew install"
