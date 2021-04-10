@@ -1,0 +1,16 @@
+language: generic
+sudo: required
+
+os:
+    - osx
+    - linux
+
+addons:
+  apt:
+    packages:
+      - zsh
+
+script:
+  - chmod u+x ./script/install.sh
+  - ./script/install.sh -f
+  - ls -la $HOME
