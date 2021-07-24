@@ -34,9 +34,6 @@ export HOMEBREW_CASK_OPTS="--appdir=$HOME/Applications"
 export HOMEBREW_NO_INSECURE_REDIRECT=1
 export HOMEBREW_NO_ANALYTICS=1
 
-#export CORE_UTILS_DIR="$HOMEBREW_HOME/opt/coreutils/libexec/gnubin"
-#export PATH="$CORE_UTILS_DIR:$PATH"
-
 # Android
 export ANDROID_HOME="$HOME/Library/Android/sdk/"
 export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
