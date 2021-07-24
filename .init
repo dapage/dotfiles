@@ -7,13 +7,11 @@ eval $(ssh-agent -s)
 if which jenv >/dev/null; then eval "$(jenv init -)"; fi
 
 # NVM
-[ -s "$NVM_HOME/nvm.sh" ] && . "$NVM_HOME/nvm.sh" # This loads nvm
-[ -s "$NVM_HOME/bash_completion" ] && \. "$NVM_HOME/bash_completion"  # This loads nvm bash_completion
+[ -s "$(brew --prefix nvm)/nvm.sh" ] && . "$(brew --prefix nvm)/nvm.sh" # This loads nvm
+[ -s "$(brew --prefix nvm)/etc/bash_completion.d/nvm" ] && . "$(brew --prefix nvm)/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
 # PYENV
 eval "$(pyenv init --path)"
-
-# if which pyenv >/dev/null; then eval "$(pyenv init -)"; fi
-# if which pyenv-virtualenv-init >/dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+eval "$(pyenv virtualenv-init -)"
 
 eval "$(rbenv init -)"
