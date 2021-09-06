@@ -18,9 +18,12 @@ brew "vim"
 cask "adoptopenjdk11"
 cask "adoptopenjdk13"
 cask "adoptopenjdk8"
+cask "google-chrome", args: { appdir: "/Applications" }
+cask "ledger-live"
 cask "logitech-options"
+cask "paw"
 cask "pdf-expert"
-cask "shadow"
+cask "screens-connect"
 cask "tower"
 cask "visual-studio-code"
 mas "1Password 7", id: 1333542190
