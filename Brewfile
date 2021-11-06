@@ -18,27 +18,39 @@ brew "vim"
 cask "adoptopenjdk11"
 cask "adoptopenjdk13"
 cask "adoptopenjdk8"
+cask "aerial"
+cask "docker"
+cask "dropbox"
 cask "google-chrome", args: { appdir: "/Applications" }
+cask "hyper"
+cask "iterm2"
 cask "ledger-live"
 cask "logitech-options"
 cask "paw"
 cask "pdf-expert"
+cask "raspberry-pi-imager"
 cask "screens-connect"
+cask "steam", args: { appdir: "/Applications" }
 cask "tower"
 cask "visual-studio-code"
+mas "1Blocker", id: 1365531024
 mas "1Password 7", id: 1333542190
 mas "Affinity Designer", id: 824171161
+mas "Affinity Photo", id: 824183456
 mas "Affinity Publisher", id: 881418622
 mas "Bear", id: 1091189122
+mas "Deliveries", id: 924726344
 mas "Developer", id: 640199958
 mas "Evernote", id: 406056744
 mas "GarageBand", id: 682658836
 mas "HP Easy Scan", id: 967004861
 mas "HP Smart", id: 1474276998
 mas "iMovie", id: 408981434
+mas "JSONPretty", id: 1450484532
 mas "Kaleidoscope", id: 587512244
 mas "Keynote", id: 409183694
 mas "Klammer", id: 436780099
+mas "LG Screen Manager", id: 1142051783
 mas "Magnet", id: 441258766
 mas "Messenger", id: 1480068668
 mas "Microsoft Excel", id: 462058435
@@ -51,7 +63,7 @@ mas "Numbers", id: 409203825
 mas "OneDrive", id: 823766827
 mas "OverPicture", id: 1188020834
 mas "Pages", id: 409201541
-mas "Paw", id: 584653203
+mas "Screens", id: 1224268771
 mas "Things", id: 904280696
 mas "Transmit", id: 1436522307
 mas "Twitter", id: 1482454543
