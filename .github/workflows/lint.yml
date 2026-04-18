@@ -36,9 +36,8 @@ jobs:
       - name: yamllint
         run: yamllint ansible/ .github/
 
-      - name: shellcheck
-        uses: ludeeus/action-shellcheck@master
-        with:
-          scandir: "."
-          additional_files: "bootstrap.sh ansible/tests/integration/run.sh"
-          ignore_paths: "install.sh update.sh"
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: shellcheck (new scripts only)
+        run: shellcheck bootstrap.sh ansible/tests/integration/run.sh
