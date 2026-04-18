@@ -87,7 +87,7 @@ run_playbook() {
   ansible-playbook \
     -i "$DOTFILES_DIR/ansible/inventory.ini" \
     "$DOTFILES_DIR/ansible/playbook.yml" \
-    "${become_flag[@]}" \
+    ${become_flag[@]+"${become_flag[@]}"} \
     "$@"
 }
 
