@@ -1,0 +1,36 @@
+name: Bootstrap (macOS)
+
+on:
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: "0 18 * * 4" # Thursday 6:00PM UTC
+  workflow_dispatch:
+
+jobs:
+  bootstrap:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: dotfiles
+
+      - name: Place repo at $HOME/.dotfiles
+        run: |
+          rsync -a dotfiles/ "$HOME/.dotfiles/"
+          ls -la "$HOME/.dotfiles"
+
+      - name: Run bootstrap.sh (check mode, skip heavy tasks)
+        env:
+          CI: "true"
+          ANSIBLE_FORCE_COLOR: "true"
+        # --check: Ansible dry-run (no real changes).
+        # --skip-tags bundle: skip `brew bundle` (35 mas apps require
+        #   App Store sign-in, impossible in CI).
+        # --skip-tags git: skip git_config (vars_prompt defaults to
+        #   empty, task is guarded, but leave it out for clarity).
+        run: "$HOME/.dotfiles/bootstrap.sh --check --skip-tags bundle,git"
+
+      - name: Show ansible version on failure
+        if: failure()
+        run: ansible --version

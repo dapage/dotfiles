@@ -70,7 +70,8 @@ idempotency (`changed=0`).
 
 - `.github/workflows/lint.yml` — ansible-lint, yamllint, shellcheck, syntax-check (Ubuntu, every push/PR)
 - `.github/workflows/unit-tests.yml` — unit playbooks (Ubuntu, every push/PR)
-- `.github/workflows/integration-macos.yml` — full bootstrap + verify + idempotency (macos-14, PR to main + weekly)
+- `.github/workflows/bootstrap-macos.yml` — `bootstrap.sh --check` end-to-end (macos-14, PR to main/develop + weekly)
+- `.github/workflows/integration-macos.yml` — full playbook + verify + idempotency (macos-14, PR to main + weekly)
 
 ## Branching
 
