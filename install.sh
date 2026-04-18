@@ -1,4 +1,8 @@
 #!/usr/bin/env sh
+#
+# DEPRECATED: prefer ./bootstrap.sh, which installs Xcode CLT, Homebrew,
+# Ansible, and runs the full setup playbook. This script is kept for
+# backwards compatibility and only copies .zshrc and .profile.
 
 cd $HOME;
 

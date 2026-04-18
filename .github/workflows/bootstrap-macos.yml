@@ -1,0 +1,54 @@
+name: Bootstrap (macOS)
+
+on:
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: "0 18 * * 4" # Thursday 6:00PM UTC
+  workflow_dispatch:
+
+jobs:
+  bootstrap:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: dotfiles
+
+      - name: Place repo at $HOME/.dotfiles
+        run: |
+          rsync -a dotfiles/ "$HOME/.dotfiles/"
+          ls -la "$HOME/.dotfiles"
+
+      - name: Show pre-flight environment
+        run: |
+          echo "uname: $(uname -a)"
+          echo "brew: $(command -v brew || echo 'not found')"
+          echo "ansible-playbook: $(command -v ansible-playbook || echo 'not found')"
+          echo "xcode-select: $(xcode-select -p 2>&1)"
+          ls -la "$HOME/.dotfiles" | head -30
+
+      - name: Run bootstrap.sh (smoke test via --syntax-check)
+        env:
+          CI: "true"
+          ANSIBLE_FORCE_COLOR: "true"
+          ANSIBLE_VERBOSITY: "2"
+        # --syntax-check: bootstrap.sh installs Xcode CLT (no-op),
+        # Homebrew (no-op), Ansible, and the Galaxy collections, then
+        # invokes ansible-playbook, which parses the playbook without
+        # executing any tasks or prompts. This validates the full
+        # bootstrap handoff end-to-end. The `integration` workflow
+        # separately runs the playbook for real.
+        run: "$HOME/.dotfiles/bootstrap.sh --syntax-check"
+
+      - name: Diagnostic dump on failure
+        if: failure()
+        run: |
+          echo "--- ansible --version ---"
+          ansible --version || true
+          echo "--- brew --version ---"
+          brew --version || true
+          echo "--- installed collections ---"
+          ansible-galaxy collection list || true
+          echo "--- bootstrap.sh ---"
+          cat "$HOME/.dotfiles/bootstrap.sh"

@@ -1,0 +1,23 @@
+---
+- name: Check Mac App Store sign-in status
+  ansible.builtin.command: mas account
+  register: mas_account
+  changed_when: false
+  failed_when: false
+
+- name: Warn if not signed in to the Mac App Store
+  ansible.builtin.debug:
+    msg: >-
+      mas is not signed in. `brew bundle` will fail on `mas` entries.
+      Sign in to the App Store GUI, then re-run with --tags bundle.
+  when: mas_account.rc != 0
+
+- name: Run brew bundle
+  ansible.builtin.command: "{{ brew_path }} bundle --file={{ brewfile_path }}"
+  register: brew_bundle
+  changed_when: >-
+    'Installing' in brew_bundle.stdout
+    or 'Upgrading' in brew_bundle.stdout
+    or 'Tapping' in brew_bundle.stdout
+  environment:
+    PATH: "{{ brew_path | dirname }}:{{ ansible_env.PATH }}"
