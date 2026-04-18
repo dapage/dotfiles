@@ -1,0 +1,25 @@
+---
+- name: Locate brew binary (Apple Silicon)
+  ansible.builtin.stat:
+    path: /opt/homebrew/bin/brew
+  register: brew_arm
+
+- name: Locate brew binary (Intel)
+  ansible.builtin.stat:
+    path: /usr/local/bin/brew
+  register: brew_intel
+
+- name: Fail if Homebrew is missing
+  ansible.builtin.fail:
+    msg: "Homebrew is not installed. Run ./bootstrap.sh first — it installs Homebrew before invoking this playbook."
+  when: not brew_arm.stat.exists and not brew_intel.stat.exists
+
+- name: Resolve brew binary path
+  ansible.builtin.set_fact:
+    brew_path: "{{ '/opt/homebrew/bin/brew' if brew_arm.stat.exists else '/usr/local/bin/brew' }}"
+
+- name: Update Homebrew
+  community.general.homebrew:
+    update_homebrew: true
+  environment:
+    PATH: "{{ brew_path | dirname }}:{{ ansible_env.PATH }}"
