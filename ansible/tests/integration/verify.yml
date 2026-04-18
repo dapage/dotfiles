@@ -52,40 +52,34 @@
           - omz.stat.isdir
 
     - name: Read back com.apple.dock autohide
-      community.general.osx_defaults:
-        domain: com.apple.dock
-        key: autohide
-        state: read
+      ansible.builtin.command: defaults read com.apple.dock autohide
       register: dock_autohide
+      changed_when: false
 
     - name: Assert dock autohide is true
       ansible.builtin.assert:
         that:
-          - dock_autohide.value | bool
+          - dock_autohide.stdout | trim == '1'
 
     - name: Read back NSAutomaticSpellingCorrectionEnabled
-      community.general.osx_defaults:
-        domain: NSGlobalDomain
-        key: NSAutomaticSpellingCorrectionEnabled
-        state: read
+      ansible.builtin.command: defaults read NSGlobalDomain NSAutomaticSpellingCorrectionEnabled
       register: autocorrect
+      changed_when: false
 
     - name: Assert autocorrect is disabled
       ansible.builtin.assert:
         that:
-          - not (autocorrect.value | bool)
+          - autocorrect.stdout | trim == '0'
 
     - name: Read back com.apple.swipescrolldirection
-      community.general.osx_defaults:
-        domain: NSGlobalDomain
-        key: com.apple.swipescrolldirection
-        state: read
+      ansible.builtin.command: defaults read NSGlobalDomain com.apple.swipescrolldirection
       register: scroll
+      changed_when: false
 
     - name: Assert natural scrolling is disabled
       ansible.builtin.assert:
         that:
-          - not (scroll.value | bool)
+          - scroll.stdout | trim == '0'
 
     - name: Check if git formula from Brewfile is installed
       ansible.builtin.command: brew list --formula git
