@@ -1,0 +1,54 @@
+---
+- name: Bootstrap MacBook
+  hosts: local
+  gather_facts: true
+  vars_files:
+    - group_vars/all.yml
+  vars_prompt:
+    - name: git_user_name
+      prompt: "Git user.name"
+      private: false
+      default: ""
+    - name: git_user_email
+      prompt: "Git user.email"
+      private: false
+      default: ""
+
+  pre_tasks:
+    - name: Require macOS
+      ansible.builtin.fail:
+        msg: "This playbook only supports macOS (detected {{ ansible_system }})."
+      when: ansible_system != 'Darwin'
+
+  tasks:
+    - name: Ensure Xcode Command Line Tools
+      ansible.builtin.import_tasks: tasks/xcode_clt.yml
+      tags: [xcode, bootstrap]
+
+    - name: Ensure Homebrew is available
+      ansible.builtin.import_tasks: tasks/homebrew.yml
+      tags: [brew, bootstrap]
+
+    - name: Apply Brewfile
+      ansible.builtin.import_tasks: tasks/brew_bundle.yml
+      tags: [brew, bundle]
+
+    - name: Install Oh My Zsh
+      ansible.builtin.import_tasks: tasks/oh_my_zsh.yml
+      tags: [omz, shell]
+
+    - name: Create developer directories
+      ansible.builtin.import_tasks: tasks/directories.yml
+      tags: [dirs]
+
+    - name: Symlink dotfiles
+      ansible.builtin.import_tasks: tasks/dotfiles.yml
+      tags: [dotfiles, shell]
+
+    - name: Apply macOS defaults
+      ansible.builtin.import_tasks: tasks/macos_defaults.yml
+      tags: [macos, defaults]
+
+    - name: Configure git
+      ansible.builtin.import_tasks: tasks/git_config.yml
+      tags: [git]
