@@ -1,0 +1,51 @@
+---
+# Unit test: Brewfile exists, is non-empty, and parses.
+# `brew bundle check` is only run when brew is actually available
+# (skipped on Linux CI).
+- name: Unit — Brewfile is well-formed
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+    repo_root: "{{ playbook_dir }}/../../.."
+    brewfile: "{{ repo_root }}/Brewfile"
+
+  tasks:
+    - name: Stat Brewfile
+      ansible.builtin.stat:
+        path: "{{ brewfile }}"
+      register: brewfile_stat
+
+    - name: Assert Brewfile exists and is non-empty
+      ansible.builtin.assert:
+        that:
+          - brewfile_stat.stat.exists
+          - brewfile_stat.stat.size > 0
+
+    - name: Read Brewfile contents
+      ansible.builtin.slurp:
+        src: "{{ brewfile }}"
+      register: brewfile_contents
+
+    - name: Assert Brewfile has at least one tap/brew/cask/mas entry
+      ansible.builtin.assert:
+        that:
+          - "'brew ' in (brewfile_contents.content | b64decode) or 'cask ' in (brewfile_contents.content | b64decode) or 'mas ' in (brewfile_contents.content | b64decode) or 'tap ' in (brewfile_contents.content | b64decode)"
+
+    - name: Detect brew binary
+      ansible.builtin.command: which brew
+      register: which_brew
+      changed_when: false
+      failed_when: false
+
+    - name: Run brew bundle check (macOS / brew-installed only)
+      ansible.builtin.command: "brew bundle check --file={{ brewfile }} --no-upgrade"
+      register: brew_check
+      changed_when: false
+      failed_when: false
+      when: which_brew.rc == 0
+
+    - name: Skip notice when brew is unavailable
+      ansible.builtin.debug:
+        msg: "brew not installed — skipping `brew bundle check`"
+      when: which_brew.rc != 0

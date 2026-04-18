@@ -1,0 +1,29 @@
+---
+# Unit test: every dotfile declared in group_vars exists in the repo.
+# Catches typos in the symlink list before they fail on a real Mac.
+- name: Unit — every dotfile in the symlink list exists in the repo
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars_files:
+    - ../../group_vars/all.yml
+  vars:
+    repo_root: "{{ playbook_dir }}/../../.."
+
+  tasks:
+    - name: Stat each dotfile at the repo root
+      ansible.builtin.stat:
+        path: "{{ repo_root }}/{{ item }}"
+      loop: "{{ dotfiles }}"
+      register: source_files
+
+    - name: Assert every source file exists
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.isreg
+        fail_msg: "Missing source file in repo: {{ item.item }}"
+        success_msg: "Found {{ item.item }}"
+      loop: "{{ source_files.results }}"
+      loop_control:
+        label: "{{ item.item }}"

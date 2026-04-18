@@ -1,0 +1,98 @@
+---
+# Integration test: asserts post-run state of a bootstrapped MacBook.
+- name: Integration — verify bootstrapped MacBook state
+  hosts: local
+  gather_facts: true
+  vars_files:
+    - ../../group_vars/all.yml
+
+  tasks:
+    - name: Stat each dotfile in $HOME
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/{{ item }}"
+      loop: "{{ dotfiles }}"
+      register: home_dotfiles
+
+    - name: Assert each dotfile in $HOME is a symlink into the repo
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.islnk
+          - item.stat.lnk_source == dotfiles_dir + '/' + item.item
+        fail_msg: "{{ item.item }} is not a symlink pointing at the repo"
+      loop: "{{ home_dotfiles.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Stat each developer directory
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop: "{{ directories }}"
+      register: dev_dirs
+
+    - name: Assert every developer directory exists
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.isdir
+        fail_msg: "{{ item.item }} is missing or not a directory"
+      loop: "{{ dev_dirs.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Stat Oh My Zsh
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.oh-my-zsh"
+      register: omz
+
+    - name: Assert Oh My Zsh is installed
+      ansible.builtin.assert:
+        that:
+          - omz.stat.exists
+          - omz.stat.isdir
+
+    - name: Read back com.apple.dock autohide
+      community.general.osx_defaults:
+        domain: com.apple.dock
+        key: autohide
+        state: read
+      register: dock_autohide
+
+    - name: Assert dock autohide is true
+      ansible.builtin.assert:
+        that:
+          - dock_autohide.value | bool
+
+    - name: Read back NSAutomaticSpellingCorrectionEnabled
+      community.general.osx_defaults:
+        domain: NSGlobalDomain
+        key: NSAutomaticSpellingCorrectionEnabled
+        state: read
+      register: autocorrect
+
+    - name: Assert autocorrect is disabled
+      ansible.builtin.assert:
+        that:
+          - not (autocorrect.value | bool)
+
+    - name: Read back com.apple.swipescrolldirection
+      community.general.osx_defaults:
+        domain: NSGlobalDomain
+        key: com.apple.swipescrolldirection
+        state: read
+      register: scroll
+
+    - name: Assert natural scrolling is disabled
+      ansible.builtin.assert:
+        that:
+          - not (scroll.value | bool)
+
+    - name: Assert git formula from Brewfile is installed
+      ansible.builtin.command: brew list --formula git
+      register: brew_git
+      changed_when: false
+
+    - name: Assert git is present in brew
+      ansible.builtin.assert:
+        that:
+          - brew_git.rc == 0
