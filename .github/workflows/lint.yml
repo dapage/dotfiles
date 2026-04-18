@@ -40,4 +40,5 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: "."
-          additional_files: "bootstrap.sh install.sh update.sh"
+          additional_files: "bootstrap.sh ansible/tests/integration/run.sh"
+          ignore_paths: "install.sh update.sh"

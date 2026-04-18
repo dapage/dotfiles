@@ -27,10 +27,18 @@
         src: "{{ brewfile }}"
       register: brewfile_contents
 
+    - name: Decode Brewfile contents
+      ansible.builtin.set_fact:
+        brewfile_text: "{{ brewfile_contents.content | b64decode }}"
+
     - name: Assert Brewfile has at least one tap/brew/cask/mas entry
       ansible.builtin.assert:
         that:
-          - "'brew ' in (brewfile_contents.content | b64decode) or 'cask ' in (brewfile_contents.content | b64decode) or 'mas ' in (brewfile_contents.content | b64decode) or 'tap ' in (brewfile_contents.content | b64decode)"
+          - >-
+            'brew ' in brewfile_text
+            or 'cask ' in brewfile_text
+            or 'mas ' in brewfile_text
+            or 'tap ' in brewfile_text
 
     - name: Detect brew binary
       ansible.builtin.command: which brew
