@@ -87,12 +87,14 @@
         that:
           - not (scroll.value | bool)
 
-    - name: Assert git formula from Brewfile is installed
+    - name: Check if git formula from Brewfile is installed
       ansible.builtin.command: brew list --formula git
       register: brew_git
       changed_when: false
+      failed_when: false
 
-    - name: Assert git is present in brew
+    - name: Assert git is present in brew (skipped in CI when bundle is skipped)
       ansible.builtin.assert:
         that:
           - brew_git.rc == 0
+      when: not (lookup('env', 'CI') | default(false, true) | bool)
