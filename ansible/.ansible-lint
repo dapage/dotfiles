@@ -1,0 +1,11 @@
+---
+skip_list:
+  - name[casing]
+  - command-instead-of-shell
+
+warn_list:
+  - experimental
+  - no-changed-when
+
+exclude_paths:
+  - tests/
