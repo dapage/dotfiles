@@ -25,7 +25,6 @@ required Galaxy collections, then runs `ansible/playbook.yml`.
 |---|---|
 | `xcode` | Install Xcode Command Line Tools |
 | `brew` | Ensure Homebrew is present and updated |
-| `bundle` | Run `brew bundle` against the repo's `Brewfile` |
 | `omz` | Install Oh My Zsh (unattended, keeps repo `.zshrc`) |
 | `dirs` | Create `~/Developer`, `~/Developer/{public,private}`, `~/Applications` |
 | `dotfiles` | Symlink shell configs from the repo into `$HOME` |
@@ -37,6 +36,16 @@ Scoped runs:
 ```sh
 ansible-playbook ansible/playbook.yml --tags macos
 ansible-playbook ansible/playbook.yml --tags dotfiles --check --diff
+```
+
+### Updating git identity
+
+`user.name` / `user.email` are only prompted for when unset. To change
+them later, pass overrides:
+
+```sh
+ansible-playbook ansible/playbook.yml --tags git \
+  -e git_user_name="New Name" -e git_user_email="new@example.com"
 ```
 
 ## Updating `Brewfile` from a running system

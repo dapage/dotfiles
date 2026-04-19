@@ -1,49 +1,112 @@
-tap "homebrew/bundle"
-tap "homebrew/cask"
-tap "homebrew/cask-drivers"
-tap "homebrew/core"
+brew "tree"
+brew "ansible"
+brew "ffmpeg"
 brew "figlet"
 brew "fortune"
+brew "gh"
 brew "git"
+brew "git-filter-repo"
+brew "handbrake"
+brew "just"
+brew "libaacs"
 brew "mas"
+brew "media-info"
+brew "mkvtoolnix"
 brew "nvm"
+brew "opentofu"
 brew "pyenv"
 brew "pyenv-virtualenv"
 brew "ruby-build"
 brew "rbenv"
+brew "rsync"
+brew "shellcheck"
+brew "ssh-copy-id"
+brew "trash"
 brew "vim"
-cask "logitech-options"
+brew "wget"
+brew "yt-dlp"
+cask "1password"
+cask "8bitdo-ultimate-software"
+cask "appcleaner"
+cask "blu-ray-player-pro"
+cask "claude"
+cask "claude-code"
+cask "corretto@8"
+cask "docker-desktop"
+cask "filebot"
+cask "github"
+cask "google-chrome"
+cask "handbrake-app"
+cask "jump-desktop-connect"
+cask "kaleidoscope"
+cask "ledger-wallet"
+cask "logi-options+"
+cask "makemkv"
+cask "nvidia-geforce-now"
+cask "ollama-app"
 cask "pdf-expert"
+cask "raspberry-pi-imager"
 cask "shadow"
+cask "spotify"
 cask "tower"
 cask "visual-studio-code"
-mas "1Password 7", id: 1333542190
-mas "Affinity Designer", id: 824171161
-mas "Affinity Publisher", id: 881418622
+cask "vlc"
+cask "zulu"
+mas "Amphetamine", id: 937984704
 mas "Bear", id: 1091189122
+mas "Craft", id: 1487937127
+mas "DaftMusic", id: 6748985865
+mas "Deliveries", id: 290986013
 mas "Developer", id: 640199958
 mas "Evernote", id: 406056744
 mas "GarageBand", id: 682658836
+mas "Home Assistant", id: 1099568401
 mas "HP Easy Scan", id: 967004861
 mas "HP Smart", id: 1474276998
-mas "iMovie", id: 408981434
-mas "Kaleidoscope", id: 587512244
-mas "Keynote", id: 409183694
-mas "Klammer", id: 436780099
+mas "Jump Desktop", id: 524141863
+mas "Keynote", id: 361285480
 mas "Magnet", id: 441258766
-mas "Messenger", id: 1480068668
 mas "Microsoft Excel", id: 462058435
 mas "Microsoft OneNote", id: 784801555
 mas "Microsoft Outlook", id: 985367838
 mas "Microsoft PowerPoint", id: 462062816
 mas "Microsoft Word", id: 462054704
-mas "NordVPN IKE", id: 1116599239
-mas "Numbers", id: 409203825
+mas "Numbers", id: 361304891
 mas "OneDrive", id: 823766827
 mas "OverPicture", id: 1188020834
-mas "Pages", id: 409201541
-mas "Paw", id: 584653203
+mas "Pages", id: 361309726
+mas "Parcel", id: 375589283
+mas "Prime Video", id: 545519333
+mas "Reeder", id: 6475002485
+mas "Tailscale", id: 1475387142
 mas "Things", id: 904280696
 mas "Transmit", id: 1436522307
-mas "Twitter", id: 1482454543
+mas "UTM", id: 1538878817
 mas "Xcode", id: 497799835
+vscode "anthropic.claude-code"
+vscode "auguwu.opentofu-vscode"
+vscode "bbenoist.nix"
+vscode "github.copilot-chat"
+vscode "github.vscode-github-actions"
+vscode "jetmartin.bats"
+vscode "mechatroner.rainbow-csv"
+vscode "ms-azuretools.vscode-containers"
+vscode "ms-azuretools.vscode-docker"
+vscode "ms-dotnettools.csdevkit"
+vscode "ms-dotnettools.csharp"
+vscode "ms-dotnettools.vscode-dotnet-runtime"
+vscode "ms-python.debugpy"
+vscode "ms-python.python"
+vscode "ms-python.vscode-pylance"
+vscode "ms-python.vscode-python-envs"
+vscode "ms-vscode-remote.remote-containers"
+vscode "ms-vscode.makefile-tools"
+vscode "opentofu.vscode-opentofu"
+vscode "redhat.java"
+vscode "vscjava.vscode-gradle"
+vscode "vscjava.vscode-java-debug"
+vscode "vscjava.vscode-java-dependency"
+vscode "vscjava.vscode-java-pack"
+vscode "vscjava.vscode-java-test"
+vscode "vscjava.vscode-maven"
+vscode "zamerick.vscode-caddyfile-syntax"

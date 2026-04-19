@@ -19,36 +19,36 @@ export HISTFILESIZE="${HISTSIZE}";
 # Omit duplicates and commands that begin with a space from history.
 export HISTCONTROL='ignoreboth';
 
-export DEV_DIR="$HOME/Developer/"
+export DEV_DIR="$HOME/Developer"
+export DEVELOPER_DIR="$DEV_DIR"
 export DEVELOPER_DIRECTORY="$DEV_DIR"
-export PUBLIC_DEV_DIR="$DEVLEOPER_DIR/public"
+export PUBLIC_DEV_DIR="$DEVELOPER_DIR/public"
 export PRIVATE_DEV_DIR="$DEVELOPER_DIR/private"
-export DOTFILES_REPO="$PUBLIC_DEV_DIR/dotfiles"
+export DOTFILES_REPO="$HOME/.dotfiles"
 export PATH="$DEVELOPER_DIR:$PUBLIC_DEV_DIR:$PRIVATE_DEV_DIR:$DOTFILES_REPO:$PATH"
 
-#Homebrew
-export HOMEBREW_HOME="$HOME/.homebrew"
-export HOMEBREW_PREFIX="$HOMEBREW_HOME"
-export PATH=$HOMEBREW_PREFIX/sbin:$HOMEBREW_PREFIX/bin:$PATH
+# Homebrew — detect /opt/homebrew (Apple Silicon) or /usr/local (Intel) and
+# let brew set HOMEBREW_PREFIX, PATH, MANPATH, etc. Guarded so a missing
+# brew install doesn't spam errors on shell init.
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
 export HOMEBREW_CASK_OPTS="--appdir=$HOME/Applications"
 export HOMEBREW_NO_INSECURE_REDIRECT=1
 export HOMEBREW_NO_ANALYTICS=1
 
 # Android
-export ANDROID_HOME="$HOME/Library/Android/sdk/"
-export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
 
-# pyenv
+# pyenv — binary comes from brew; only export PYENV_ROOT for installed versions.
 export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
 
-# nvm
-export NVM_HOME="$HOME/.nvm"
-export PATH="$NVM_HOME:$PATH"
+# nvm — loaded lazily in .init.
 
-# rbenv
-export PATH="$HOME/.rbenv/bin:$PATH"
-export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+# rbenv — binary comes from brew.
 
 # Prefer US English and use UTF-8.
 export LANG='en_US.UTF-8';

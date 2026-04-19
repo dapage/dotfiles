@@ -1,14 +1,25 @@
 #!/usr/bin/env bash
 
 # SSH agent
-eval $(ssh-agent -s)
+eval "$(ssh-agent -s)"
 
-# NVM
-[ -s "$(brew --prefix nvm)/nvm.sh" ] && . "$(brew --prefix nvm)/nvm.sh" # This loads nvm
-[ -s "$(brew --prefix nvm)/etc/bash_completion.d/nvm" ] && . "$(brew --prefix nvm)/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+# nvm (Homebrew install)
+if command -v brew >/dev/null 2>&1; then
+  NVM_PREFIX="$(brew --prefix nvm 2>/dev/null || true)"
+  if [ -n "$NVM_PREFIX" ] && [ -s "$NVM_PREFIX/nvm.sh" ]; then
+    . "$NVM_PREFIX/nvm.sh"
+    [ -s "$NVM_PREFIX/etc/bash_completion.d/nvm" ] && . "$NVM_PREFIX/etc/bash_completion.d/nvm"
+  fi
+  unset NVM_PREFIX
+fi
 
-# PYENV
-eval "$(pyenv init --path)"
-eval "$(pyenv virtualenv-init -)"
+# pyenv
+if command -v pyenv >/dev/null 2>&1; then
+  eval "$(pyenv init --path)"
+  eval "$(pyenv virtualenv-init -)"
+fi
 
-eval "$(rbenv init -)"
+# rbenv
+if command -v rbenv >/dev/null 2>&1; then
+  eval "$(rbenv init -)"
+fi
