@@ -76,6 +76,54 @@ install_collections() {
   ansible-galaxy collection install -r "$DOTFILES_DIR/ansible/requirements.yml"
 }
 
+keep_sudo_alive() {
+  # Cask and Mac App Store .pkg installers call `sudo installer` internally.
+  # We run `brew bundle` straight from this script (rather than via Ansible's
+  # command module) so stdin stays on a real TTY, but we still prime sudo
+  # once up front and keep the timestamp fresh so each installer doesn't
+  # re-prompt.
+  if [ "${CI:-}" = "true" ]; then
+    return
+  fi
+  log "Priming sudo (needed for Cask/MAS pkg installers)."
+  sudo -v
+  ( while true; do sudo -n true; sleep 60; kill -0 "$$" 2>/dev/null || exit; done ) &
+  SUDO_KEEPALIVE_PID=$!
+  trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
+}
+
+run_brew_bundle() {
+  # Must run from this script (not Ansible) so Cask/MAS .pkg installers get
+  # a real TTY for any sudo prompts not covered by the keepalive.
+  if [ "${CI:-}" = "true" ]; then
+    log "Skipping brew bundle in CI."
+    return
+  fi
+  log "Running brew bundle against $DOTFILES_DIR/Brewfile."
+  brew bundle --file="$DOTFILES_DIR/Brewfile"
+}
+
+accept_xcode_license() {
+  # Installing Xcode (via MAS) leaves the EULA unaccepted. Anything that
+  # invokes the full Xcode toolchain (including Ansible fact-gathering on
+  # some macOS versions) will then fail with rc=69 until the license is
+  # accepted. Safe no-op if Xcode.app isn't present or license already
+  # accepted.
+  if [ "${CI:-}" = "true" ]; then
+    return
+  fi
+  if ! [ -d /Applications/Xcode.app ]; then
+    return
+  fi
+  # `xcodebuild -version` exits 69 and prints the license nag when the EULA
+  # hasn't been accepted for the currently selected Xcode.
+  if xcodebuild -version >/dev/null 2>&1; then
+    return
+  fi
+  log "Accepting Xcode license."
+  sudo xcodebuild -license accept
+}
+
 run_playbook() {
   log "Running Ansible playbook."
   local become_flag=()
@@ -98,6 +146,9 @@ main() {
   clone_repo
   install_ansible
   install_collections
+  keep_sudo_alive
+  run_brew_bundle
+  accept_xcode_license
   run_playbook "$@"
   log "Done. Open a new Terminal window to pick up the new shell configuration."
 }

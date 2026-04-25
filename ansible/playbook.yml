@@ -4,15 +4,6 @@
   gather_facts: true
   vars_files:
     - group_vars/all.yml
-  vars_prompt:
-    - name: git_user_name
-      prompt: "Git user.name"
-      private: false
-      default: ""
-    - name: git_user_email
-      prompt: "Git user.email"
-      private: false
-      default: ""
 
   pre_tasks:
     - name: Require macOS
@@ -29,12 +20,12 @@
       ansible.builtin.import_tasks: tasks/homebrew.yml
       tags: [brew, bootstrap]
 
-    - name: Apply Brewfile
-      ansible.builtin.import_tasks: tasks/brew_bundle.yml
-      tags: [brew, bundle]
-
     - name: Install Oh My Zsh
       ansible.builtin.import_tasks: tasks/oh_my_zsh.yml
+      tags: [omz, shell]
+
+    - name: Install Oh My Zsh plugins
+      ansible.builtin.import_tasks: tasks/zsh_plugins.yml
       tags: [omz, shell]
 
     - name: Create developer directories
