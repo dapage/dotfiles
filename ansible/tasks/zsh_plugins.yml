@@ -1,0 +1,20 @@
+---
+- name: Clone third-party Oh My Zsh plugins  # noqa: latest[git]
+  ansible.builtin.git:
+    repo: "{{ item.repo }}"
+    dest: "{{ ansible_env.ZSH_CUSTOM | default(ansible_env.HOME + '/.oh-my-zsh/custom', true) }}/plugins/{{ item.name }}"
+    depth: 1
+    update: false
+  loop:
+    - name: zsh-autosuggestions
+      repo: https://github.com/zsh-users/zsh-autosuggestions
+    - name: zsh-syntax-highlighting
+      repo: https://github.com/zsh-users/zsh-syntax-highlighting
+    - name: zsh-completions
+      repo: https://github.com/zsh-users/zsh-completions
+    - name: zsh-history-substring-search
+      repo: https://github.com/zsh-users/zsh-history-substring-search
+    - name: zsh-interactive-cd
+      repo: https://github.com/changyuheng/zsh-interactive-cd
+  loop_control:
+    label: "{{ item.name }}"

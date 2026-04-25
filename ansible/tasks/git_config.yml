@@ -5,14 +5,16 @@
 #   - Prompt only when unset and no override given.
 
 - name: Read current git user.name
-  ansible.builtin.command: git config --global --default "" user.name
+  community.general.git_config_info:
+    name: user.name
+    scope: global
   register: current_git_user_name
-  changed_when: false
 
 - name: Read current git user.email
-  ansible.builtin.command: git config --global --default "" user.email
+  community.general.git_config_info:
+    name: user.email
+    scope: global
   register: current_git_user_email
-  changed_when: false
 
 - name: Prompt for git user.name (unset and no override)
   ansible.builtin.pause:
@@ -20,7 +22,7 @@
   register: prompted_git_user_name
   when:
     - (git_user_name | default('') | trim) == ''
-    - (current_git_user_name.stdout | trim) == ''
+    - (current_git_user_name.config_value | default('') | trim) == ''
 
 - name: Prompt for git user.email (unset and no override)
   ansible.builtin.pause:
@@ -28,7 +30,7 @@
   register: prompted_git_user_email
   when:
     - (git_user_email | default('') | trim) == ''
-    - (current_git_user_email.stdout | trim) == ''
+    - (current_git_user_email.config_value | default('') | trim) == ''
 
 - name: Resolve desired git user.name
   ansible.builtin.set_fact:

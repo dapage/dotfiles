@@ -24,6 +24,10 @@
       ansible.builtin.import_tasks: tasks/oh_my_zsh.yml
       tags: [omz, shell]
 
+    - name: Install Oh My Zsh plugins
+      ansible.builtin.import_tasks: tasks/zsh_plugins.yml
+      tags: [omz, shell]
+
     - name: Create developer directories
       ansible.builtin.import_tasks: tasks/directories.yml
       tags: [dirs]
