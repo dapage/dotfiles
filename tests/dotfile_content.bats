@@ -93,3 +93,23 @@ setup() {
   run grep -nE "^alias update='[^']*;[^']*;" "$REPO_ROOT/.aliases"
   [ "$status" -ne 0 ]
 }
+
+# --- L-series robustness ---
+
+@test "L1: .profile quotes \$DOTFILES_DIR in the source-files glob" {
+  # Unquoted vars in the for loop break if DOTFILES_DIR contains spaces
+  # or shell metacharacters.
+  grep -qE 'for file in "\$DOTFILES_DIR"' "$REPO_ROOT/.profile"
+}
+
+@test "L2: .greeting uses command -v, not the deprecated which" {
+  run grep -nE '^[[:space:]]*which[[:space:]]' "$REPO_ROOT/.greeting"
+  [ "$status" -ne 0 ]
+  grep -q 'command -v' "$REPO_ROOT/.greeting"
+}
+
+@test "L3: .init does not unconditionally eval ssh-agent on every shell" {
+  # The bare `eval "$(ssh-agent -s)"` would fork a fresh agent per shell.
+  # Whatever guard we use must come before the eval line.
+  ! grep -qE '^[[:space:]]*eval[[:space:]]+"\$\(ssh-agent[[:space:]]+-s\)"[[:space:]]*$' "$REPO_ROOT/.init"
+}

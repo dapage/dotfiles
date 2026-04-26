@@ -23,7 +23,6 @@ required Galaxy collections, then runs `ansible/playbook.yml`.
 
 | Tag | Task |
 |---|---|
-| `xcode` | Install Xcode Command Line Tools |
 | `brew` | Ensure Homebrew is present and updated |
 | `omz` | Install Oh My Zsh (unattended, keeps repo `.zshrc`) |
 | `dirs` | Create `~/Developer`, `~/Developer/{public,private}`, `~/Applications` |
@@ -54,7 +53,9 @@ ansible-playbook ansible/playbook.yml --tags git \
 ./update.sh
 ```
 
-Rewrites the repo's `Brewfile` from `brew bundle dump`.
+Rewrites the repo's `Brewfile` from `brew bundle dump`. Review the
+diff before committing. (Not to be confused with `bin/update`, which
+the `update` shell alias calls to run all package-manager updates.)
 
 ## Testing
 
@@ -90,6 +91,4 @@ idempotency (`changed=0`).
 
 ## Legacy
 
-`install.sh` is deprecated in favor of `bootstrap.sh` but kept for
-muscle memory. `.macos` has been migrated into
-`ansible/tasks/macos_defaults.yml`.
+`.macos` has been migrated into `ansible/tasks/macos_defaults.yml`.

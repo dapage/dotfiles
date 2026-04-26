@@ -1,28 +1,39 @@
 ---
-- name: Ensure backup directory exists
-  ansible.builtin.file:
-    path: "{{ dotfiles_backup_dir }}"
-    state: directory
-    mode: "0755"
-
 - name: Inspect existing dotfile targets
   ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/{{ item }}"
   loop: "{{ dotfiles }}"
   register: existing_dotfiles
 
+- name: Identify dotfiles that need backing up (real files, not symlinks)
+  ansible.builtin.set_fact:
+    dotfiles_needing_backup: >-
+      {{ existing_dotfiles.results
+         | selectattr('stat.exists')
+         | rejectattr('stat.islnk')
+         | list }}
+
+- name: Stamp this run's backup directory
+  ansible.builtin.set_fact:
+    dotfiles_backup_run_dir: "{{ dotfiles_backup_dir }}/{{ ansible_date_time.iso8601_basic_short }}"
+  when: dotfiles_needing_backup | length > 0
+
+- name: Ensure timestamped backup directory exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_backup_run_dir }}"
+    state: directory
+    mode: "0755"
+  when: dotfiles_needing_backup | length > 0
+
 - name: Back up real files before symlinking
   ansible.builtin.copy:
     src: "{{ ansible_env.HOME }}/{{ item.item }}"
-    dest: "{{ dotfiles_backup_dir }}/{{ item.item }}"
+    dest: "{{ dotfiles_backup_run_dir }}/{{ item.item }}"
     remote_src: true
     mode: preserve
-  loop: "{{ existing_dotfiles.results }}"
+  loop: "{{ dotfiles_needing_backup }}"
   loop_control:
     label: "{{ item.item }}"
-  when:
-    - item.stat.exists
-    - not item.stat.islnk
 
 - name: Symlink dotfiles from repo into $HOME
   ansible.builtin.file:
