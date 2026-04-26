@@ -15,6 +15,8 @@ set -euo pipefail
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 DOTFILES_REPO_URL="${DOTFILES_REPO_URL:-https://github.com/dapage/dotfiles.git}"
 DOTFILES_BRANCH="${DOTFILES_BRANCH:-main}"
+HOMEBREW_PREFIXES="${HOMEBREW_PREFIXES:-/opt/homebrew /usr/local}"
+XCODE_APP="${XCODE_APP:-/Applications/Xcode.app}"
 
 log() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m!!\033[0m %s\n' "$*" >&2; }
@@ -37,20 +39,33 @@ install_xcode_clt() {
   log "Xcode Command Line Tools ready."
 }
 
+_brew_at_prefix() {
+  local prefix
+  for prefix in $HOMEBREW_PREFIXES; do
+    [ -x "$prefix/bin/brew" ] && return 0
+  done
+  return 1
+}
+
 install_homebrew() {
-  if command -v brew >/dev/null 2>&1; then
+  # `command -v brew` alone is unreliable across re-runs: a fresh bash
+  # invocation may not have brew on PATH even when it's installed at the
+  # standard prefix. Falling back to a direct prefix probe keeps this
+  # idempotent so we don't re-run the curl installer every time.
+  if command -v brew >/dev/null 2>&1 || _brew_at_prefix; then
     log "Homebrew already installed."
   else
     log "Installing Homebrew."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
-  if [ -x /opt/homebrew/bin/brew ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  elif [ -x /usr/local/bin/brew ]; then
-    eval "$(/usr/local/bin/brew shellenv)"
-  else
-    die "Homebrew installation did not produce a brew binary in the expected location."
-  fi
+  local prefix
+  for prefix in $HOMEBREW_PREFIXES; do
+    if [ -x "$prefix/bin/brew" ]; then
+      eval "$("$prefix/bin/brew" shellenv)"
+      return
+    fi
+  done
+  die "Homebrew installation did not produce a brew binary in the expected location."
 }
 
 clone_repo() {
@@ -117,20 +132,19 @@ accept_xcode_license() {
   # Installing Xcode (via MAS) leaves the EULA unaccepted. Anything that
   # invokes the full Xcode toolchain (including Ansible fact-gathering on
   # some macOS versions) will then fail with rc=69 until the license is
-  # accepted. Safe no-op if Xcode.app isn't present or license already
-  # accepted.
+  # accepted. `sudo xcodebuild -license accept` is the silent, idempotent
+  # accept — safe to call when the license is already accepted, so we run
+  # it unconditionally rather than relying on a state probe (the previous
+  # `xcodebuild -version` short-circuit returned 0 when xcode-select
+  # pointed at the Command Line Tools, silently skipping the accept and
+  # letting ansible fail later with rc=69).
   if [ "${CI:-}" = "true" ]; then
     return
   fi
-  if ! [ -d /Applications/Xcode.app ]; then
+  if ! [ -d "$XCODE_APP" ]; then
     return
   fi
-  # `xcodebuild -version` exits 69 and prints the license nag when the EULA
-  # hasn't been accepted for the currently selected Xcode.
-  if xcodebuild -version >/dev/null 2>&1; then
-    return
-  fi
-  log "Accepting Xcode license."
+  log "Accepting Xcode license (idempotent)."
   sudo xcodebuild -license accept
 }
 
