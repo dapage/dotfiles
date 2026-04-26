@@ -40,4 +40,4 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y shellcheck
 
       - name: shellcheck (new scripts only)
-        run: shellcheck bootstrap.sh ansible/tests/integration/run.sh
+        run: shellcheck bootstrap.sh ansible/tests/integration/run.sh bin/update
