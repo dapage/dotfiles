@@ -37,5 +37,5 @@ jobs:
       - name: Unit — Brewfile parses
         run: ansible-playbook ansible/tests/unit/test_brewfile.yml
 
-      - name: Unit — bootstrap.sh
-        run: bats tests/bootstrap.bats
+      - name: Unit — bats suites
+        run: bats tests/
