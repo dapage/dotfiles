@@ -87,7 +87,7 @@ keep_sudo_alive() {
   fi
   log "Priming sudo (needed for Cask/MAS pkg installers)."
   sudo -v
-  ( while true; do sudo -n true; sleep 60; kill -0 "$$" 2>/dev/null || exit; done ) &
+  ( while true; do sudo -n true 2>/dev/null; sleep 60; kill -0 "$$" 2>/dev/null || exit; done ) &
   SUDO_KEEPALIVE_PID=$!
   trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
 }
@@ -100,7 +100,17 @@ run_brew_bundle() {
     return
   fi
   log "Running brew bundle against $DOTFILES_DIR/Brewfile."
-  brew bundle --file="$DOTFILES_DIR/Brewfile"
+  # A single failed cask/formula download (e.g. a flaky vendor CDN) makes
+  # `brew bundle` exit non-zero. Without this guard, `set -e` would abort
+  # before the Ansible playbook runs — meaning dotfile symlinks, macOS
+  # defaults, oh-my-zsh, etc. would silently never get applied. Surface
+  # the failure as a warning and let the rest of bootstrap continue;
+  # the user can re-run `brew bundle` to retry transient failures.
+  if ! brew bundle --file="$DOTFILES_DIR/Brewfile"; then
+    warn "brew bundle reported failures (often a transient cask download)."
+    warn "Continuing so the playbook still runs. Re-run later to retry:"
+    warn "  brew bundle --file=$DOTFILES_DIR/Brewfile"
+  fi
 }
 
 accept_xcode_license() {
