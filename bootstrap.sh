@@ -163,4 +163,8 @@ main() {
   log "Done. Open a new Terminal window to pick up the new shell configuration."
 }
 
-main "$@"
+# Only execute when run directly; allow tests to source this file to
+# exercise individual functions without triggering main().
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  main "$@"
+fi

@@ -25,6 +25,9 @@ jobs:
       - name: Install Galaxy collections
         run: ansible-galaxy collection install -r ansible/requirements.yml
 
+      - name: Install bats
+        run: sudo apt-get update && sudo apt-get install -y bats
+
       - name: Unit — inputs well-formed
         run: ansible-playbook ansible/tests/unit/test_syntax.yml
 
@@ -33,3 +36,6 @@ jobs:
 
       - name: Unit — Brewfile parses
         run: ansible-playbook ansible/tests/unit/test_brewfile.yml
+
+      - name: Unit — bootstrap.sh
+        run: bats tests/bootstrap.bats
