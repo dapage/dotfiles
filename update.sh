@@ -1,29 +1,27 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+#
+# update.sh — regenerate the repo's Brewfile from the currently
+# installed brew formulae and casks. Intended for personal sync;
+# review `git diff Brewfile` before committing.
+#
+# Not to be confused with `bin/update`, which is the multi-package-
+# manager updater that the shell `update` alias calls.
 
-export DOTFILES_DIR="$HOME/.dotfiles"
+set -euo pipefail
 
-cd $DOTFILES_DIR;
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 
-function updateBrewfile() {
-    rm $DOTFILES_DIR/Brewfile && brew bundle dump;
-}
+cd "$DOTFILES_DIR"
 
-function update() {
-    cp $HOME/.zshrc $DOTFILES_DIR/.zshrc;
-    cp $HOME/.profile $DOTFILES_DIR/.profile;
+if ! command -v brew >/dev/null 2>&1; then
+  echo "Error: brew not on PATH; cannot regenerate Brewfile." >&2
+  exit 1
+fi
 
-    if test -f $DOTFILES_DIR/"Brewfile"; then
-        updateBrewfile;
-    fi
-}
+echo "==> Regenerating Brewfile from current system"
+rm -f Brewfile
+brew bundle dump --file=Brewfile
 
-if [ "$1" == "--force" -o "$1" == "-f" ]; then
-	update;
-else
-	read -p "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1;
-	echo "";
-	if [[ $REPLY =~ ^[Yy]$ ]]; then
-		update;
-	fi;
-fi;
-unset doIt;
+echo
+echo "==> git diff --stat Brewfile"
+git -C "$DOTFILES_DIR" diff --stat Brewfile || true

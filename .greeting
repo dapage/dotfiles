@@ -1,4 +1,4 @@
-#!/bin/env zsh
+#!/usr/bin/env zsh
 date
-if which figlet >/dev/null; then figlet -f slant $(echo "Hello Dusty!"); fi
-if which fortune >/dev/null; then fortune; fi
+if command -v figlet >/dev/null 2>&1; then figlet -f slant "Hello Dusty!"; fi
+if command -v fortune >/dev/null 2>&1; then fortune; fi

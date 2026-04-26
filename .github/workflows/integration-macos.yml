@@ -7,6 +7,9 @@ on:
     - cron: "0 17 * * 4" # Every Thursday 5:00PM UTC
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   integration:
     runs-on: macos-14

@@ -1,3 +1,3 @@
-export DOTFILES_HOME="$HOME/.dotfiles/"
+export DOTFILES_DIR="$HOME/.dotfiles"
 
-source $DOTFILES_HOME/.profile
+source "$DOTFILES_DIR/.profile"

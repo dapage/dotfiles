@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 
-# SSH agent
-eval "$(ssh-agent -s)"
+# SSH agent — only spawn one when there isn't already a live agent
+# reachable via SSH_AUTH_SOCK. Without this guard, every new shell forks
+# a fresh agent and the user accumulates orphans. ssh-add -l exits 0
+# (agent has keys), 1 (agent reachable, no keys), or 2 (no agent).
+ssh-add -l >/dev/null 2>&1
+case $? in
+  0|1) ;;
+  *)   eval "$(ssh-agent -s)" >/dev/null ;;
+esac
 
 # nvm (Homebrew install)
 if command -v brew >/dev/null 2>&1; then

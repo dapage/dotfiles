@@ -20,12 +20,8 @@ export HISTFILESIZE="${HISTSIZE}";
 export HISTCONTROL='ignoreboth';
 
 export DEV_DIR="$HOME/Developer"
-export DEVELOPER_DIR="$DEV_DIR"
-export DEVELOPER_DIRECTORY="$DEV_DIR"
-export PUBLIC_DEV_DIR="$DEVELOPER_DIR/public"
-export PRIVATE_DEV_DIR="$DEVELOPER_DIR/private"
-export DOTFILES_REPO="$HOME/.dotfiles"
-export PATH="$DEVELOPER_DIR:$PUBLIC_DEV_DIR:$PRIVATE_DEV_DIR:$DOTFILES_REPO:$PATH"
+export PUBLIC_DEV_DIR="$DEV_DIR/public"
+export PRIVATE_DEV_DIR="$DEV_DIR/private"
 
 # Homebrew — detect /opt/homebrew (Apple Silicon) or /usr/local (Intel) and
 # let brew set HOMEBREW_PREFIX, PATH, MANPATH, etc. Guarded so a missing
