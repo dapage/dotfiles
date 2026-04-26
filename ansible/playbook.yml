@@ -12,10 +12,6 @@
       when: ansible_system != 'Darwin'
 
   tasks:
-    - name: Ensure Xcode Command Line Tools
-      ansible.builtin.import_tasks: tasks/xcode_clt.yml
-      tags: [xcode, bootstrap]
-
     - name: Ensure Homebrew is available
       ansible.builtin.import_tasks: tasks/homebrew.yml
       tags: [brew, bootstrap]

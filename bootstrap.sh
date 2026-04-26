@@ -17,6 +17,7 @@ DOTFILES_REPO_URL="${DOTFILES_REPO_URL:-https://github.com/dapage/dotfiles.git}"
 DOTFILES_BRANCH="${DOTFILES_BRANCH:-main}"
 HOMEBREW_PREFIXES="${HOMEBREW_PREFIXES:-/opt/homebrew /usr/local}"
 XCODE_APP="${XCODE_APP:-/Applications/Xcode.app}"
+BOOTSTRAP_LOG_DIR="${BOOTSTRAP_LOG_DIR:-$HOME}"
 
 log() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m!!\033[0m %s\n' "$*" >&2; }
@@ -70,8 +71,11 @@ install_homebrew() {
 
 clone_repo() {
   if [ -d "$DOTFILES_DIR/.git" ]; then
-    log "Dotfiles repo already at $DOTFILES_DIR."
-    return
+    if git -C "$DOTFILES_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      log "Dotfiles repo already at $DOTFILES_DIR."
+      return
+    fi
+    die "$DOTFILES_DIR/.git exists but is not a valid git repo. Move it aside and re-run."
   fi
   log "Cloning $DOTFILES_REPO_URL into $DOTFILES_DIR."
   git clone --branch "$DOTFILES_BRANCH" "$DOTFILES_REPO_URL" "$DOTFILES_DIR"
@@ -104,7 +108,10 @@ keep_sudo_alive() {
   sudo -v
   ( while true; do sudo -n true 2>/dev/null; sleep 60; kill -0 "$$" 2>/dev/null || exit; done ) &
   SUDO_KEEPALIVE_PID=$!
-  trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
+  # Cover signal-driven exits too — bare `EXIT` doesn't fire when the
+  # script is killed by INT/TERM/HUP, leaving the keepalive subshell
+  # polling sudo for the rest of the user's session.
+  trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT INT TERM HUP
 }
 
 run_brew_bundle() {
@@ -114,15 +121,19 @@ run_brew_bundle() {
     log "Skipping brew bundle in CI."
     return
   fi
-  log "Running brew bundle against $DOTFILES_DIR/Brewfile."
+  local log_file
+  log_file="$BOOTSTRAP_LOG_DIR/dotfiles-brew-$(date +%Y%m%dT%H%M%S).log"
+  log "Running brew bundle against $DOTFILES_DIR/Brewfile (logging to $log_file)."
   # A single failed cask/formula download (e.g. a flaky vendor CDN) makes
   # `brew bundle` exit non-zero. Without this guard, `set -e` would abort
   # before the Ansible playbook runs — meaning dotfile symlinks, macOS
   # defaults, oh-my-zsh, etc. would silently never get applied. Surface
   # the failure as a warning and let the rest of bootstrap continue;
-  # the user can re-run `brew bundle` to retry transient failures.
-  if ! brew bundle --file="$DOTFILES_DIR/Brewfile"; then
+  # the user can re-run `brew bundle` to retry transient failures, and the
+  # log file lets them see exactly which casks failed.
+  if ! brew bundle --file="$DOTFILES_DIR/Brewfile" 2>&1 | tee "$log_file"; then
     warn "brew bundle reported failures (often a transient cask download)."
+    warn "Full output: $log_file"
     warn "Continuing so the playbook still runs. Re-run later to retry:"
     warn "  brew bundle --file=$DOTFILES_DIR/Brewfile"
   fi

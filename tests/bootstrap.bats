@@ -104,6 +104,130 @@ EOF
   [ -z "$output" ]
 }
 
+@test "run_brew_bundle: writes brew output to a log file on failure (so users can diagnose)" {
+  stub_brew 1
+  BOOTSTRAP_LOG_DIR="$TEST_TMP" run run_brew_bundle
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"$TEST_TMP"* ]]
+  ls "$TEST_TMP"/dotfiles-brew-*.log >/dev/null 2>&1
+}
+
+@test "clone_repo: skips when DOTFILES_DIR is already a valid git repo" {
+  local repo_dir="$TEST_TMP/dotfiles-existing"
+  mkdir -p "$repo_dir"
+  ( cd "$repo_dir" && git init --quiet )
+  DOTFILES_DIR="$repo_dir" run clone_repo
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"already at"* ]]
+  [[ "$output" != *"Cloning"* ]]
+}
+
+@test "clone_repo: dies when .git exists but is not a valid git repository" {
+  local fake_dir="$TEST_TMP/dotfiles-corrupt"
+  mkdir -p "$fake_dir/.git"
+  DOTFILES_DIR="$fake_dir" run clone_repo
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"not a valid git repo"* ]]
+}
+
+@test "clone_repo: invokes git clone when DOTFILES_DIR is absent" {
+  local target="$TEST_TMP/dotfiles-not-yet"
+  local stub_dir="$TEST_TMP/bin"
+  local sentinel="$TEST_TMP/git-args"
+  mkdir -p "$stub_dir"
+  cat > "$stub_dir/git" <<EOF
+#!/usr/bin/env bash
+echo "\$@" > "$sentinel"
+EOF
+  chmod +x "$stub_dir/git"
+  PATH="$stub_dir:$PATH"
+  export PATH
+  DOTFILES_DIR="$target" run clone_repo
+  [ "$status" -eq 0 ]
+  grep -q "clone --branch" "$sentinel"
+  grep -q "$target" "$sentinel"
+}
+
+@test "install_ansible: skips when ansible-playbook is already on PATH" {
+  local stub_dir="$TEST_TMP/bin"
+  mkdir -p "$stub_dir"
+  cat > "$stub_dir/ansible-playbook" <<'EOF'
+#!/usr/bin/env bash
+exit 0
+EOF
+  chmod +x "$stub_dir/ansible-playbook"
+  cat > "$stub_dir/brew" <<'EOF'
+#!/usr/bin/env bash
+echo "FAIL: brew install must not be invoked when ansible is present" >&2
+exit 99
+EOF
+  chmod +x "$stub_dir/brew"
+  PATH="$stub_dir:/usr/bin:/bin"
+  export PATH
+  run install_ansible
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"already installed"* ]]
+}
+
+@test "install_ansible: invokes brew install ansible when missing" {
+  local stub_dir="$TEST_TMP/bin"
+  local sentinel="$TEST_TMP/brew-args"
+  mkdir -p "$stub_dir"
+  cat > "$stub_dir/brew" <<EOF
+#!/usr/bin/env bash
+echo "\$@" > "$sentinel"
+EOF
+  chmod +x "$stub_dir/brew"
+  PATH="$stub_dir:/usr/bin:/bin"
+  export PATH
+  run install_ansible
+  [ "$status" -eq 0 ]
+  grep -q "install ansible" "$sentinel"
+}
+
+@test "run_playbook: passes --ask-become-pass when not in CI" {
+  local stub_dir="$TEST_TMP/bin"
+  local sentinel="$TEST_TMP/playbook-args"
+  mkdir -p "$stub_dir"
+  cat > "$stub_dir/ansible-playbook" <<EOF
+#!/usr/bin/env bash
+echo "\$@" > "$sentinel"
+EOF
+  chmod +x "$stub_dir/ansible-playbook"
+  PATH="$stub_dir:/usr/bin:/bin"
+  export PATH
+  run run_playbook
+  [ "$status" -eq 0 ]
+  grep -q -- '--ask-become-pass' "$sentinel"
+}
+
+@test "run_playbook: omits --ask-become-pass when CI=true" {
+  local stub_dir="$TEST_TMP/bin"
+  local sentinel="$TEST_TMP/playbook-args"
+  mkdir -p "$stub_dir"
+  cat > "$stub_dir/ansible-playbook" <<EOF
+#!/usr/bin/env bash
+echo "\$@" > "$sentinel"
+EOF
+  chmod +x "$stub_dir/ansible-playbook"
+  PATH="$stub_dir:/usr/bin:/bin"
+  export PATH
+  CI=true run run_playbook
+  [ "$status" -eq 0 ]
+  ! grep -q -- '--ask-become-pass' "$sentinel"
+}
+
+@test "keep_sudo_alive: trap covers EXIT INT TERM HUP (signal-killed bootstraps don't leak the keepalive)" {
+  # Static check on the source: testing the live trap would require
+  # stubbing sudo and reading `trap -p` from a forked shell.
+  local trap_line
+  trap_line=$(grep -E '^[[:space:]]*trap .*EXIT' "$REPO_ROOT/bootstrap.sh")
+  [ -n "$trap_line" ]
+  [[ "$trap_line" == *INT* ]]
+  [[ "$trap_line" == *TERM* ]]
+  [[ "$trap_line" == *HUP* ]]
+}
+
 @test "accept_xcode_license: runs sudo xcodebuild -license accept when Xcode.app present" {
   # Regression: the previous xcodebuild -version short-circuit returned 0
   # when xcode-select pointed at the Command Line Tools, so the accept
