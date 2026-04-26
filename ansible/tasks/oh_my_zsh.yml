@@ -1,0 +1,13 @@
+---
+# Clone Oh My Zsh directly at a pinned commit instead of curl|sh-ing the
+# upstream installer. The installer's only meaningful work under
+# --unattended --keep-zshrc was cloning the repo; doing it ourselves
+# closes the supply-chain hole (a compromise of the install.sh script
+# would land on every fresh bootstrap). Bump `version` deliberately when
+# you want to take new upstream changes.
+- name: Clone Oh My Zsh
+  ansible.builtin.git:
+    repo: https://github.com/ohmyzsh/ohmyzsh
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh"
+    version: 349b9e49ced7682e27927ffb34b6522f011f3e74
+    update: false

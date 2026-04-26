@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# Make vim the default editor.
+export EDITOR='vim';
+
+# Enable persistent REPL history for `node`.
+export NODE_REPL_HISTORY=~/.node_history;
+# Allow 32³ entries; the default is 1000.
+export NODE_REPL_HISTORY_SIZE='32768';
+# Use sloppy mode by default, matching web browsers.
+export NODE_REPL_MODE='sloppy';
+
+# Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
+export PYTHONIOENCODING='UTF-8';
+
+# Increase Bash history size. Allow 32³ entries; the default is 500.
+export HISTSIZE='32768';
+export HISTFILESIZE="${HISTSIZE}";
+# Omit duplicates and commands that begin with a space from history.
+export HISTCONTROL='ignoreboth';
+
+export DEV_DIR="$HOME/Developer"
+export PUBLIC_DEV_DIR="$DEV_DIR/public"
+export PRIVATE_DEV_DIR="$DEV_DIR/private"
+
+# Homebrew — detect /opt/homebrew (Apple Silicon) or /usr/local (Intel) and
+# let brew set HOMEBREW_PREFIX, PATH, MANPATH, etc. Guarded so a missing
+# brew install doesn't spam errors on shell init.
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+export HOMEBREW_CASK_OPTS="--appdir=$HOME/Applications"
+export HOMEBREW_NO_INSECURE_REDIRECT=1
+export HOMEBREW_NO_ANALYTICS=1
+
+# Android
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
+
+# pyenv — binary comes from brew; only export PYENV_ROOT for installed versions.
+export PYENV_ROOT="$HOME/.pyenv"
+
+# nvm — loaded lazily in .init.
+
+# rbenv — binary comes from brew.
+
+# Prefer US English and use UTF-8.
+export LANG='en_US.UTF-8';
+export LC_ALL='en_US.UTF-8';
+
+# Don’t clear the screen after quitting a manual page.
+export MANPAGER='less -X';

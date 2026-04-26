@@ -1,0 +1,27 @@
+---
+dotfiles_dir: "{{ lookup('env', 'HOME') }}/.dotfiles"
+dotfiles_backup_dir: "{{ lookup('env', 'HOME') }}/.dotfiles-backup"
+
+dotfiles:
+  - .zshrc
+  - .zprofile
+  - .bash_profile
+  - .profile
+  - .exports
+  - .aliases
+  - .functions
+  - .init
+  - .greeting
+  - .vimrc
+  - .wgetrc
+
+directories:
+  - "{{ lookup('env', 'HOME') }}/Developer"
+  - "{{ lookup('env', 'HOME') }}/Developer/public"
+  - "{{ lookup('env', 'HOME') }}/Developer/private"
+  - "{{ lookup('env', 'HOME') }}/Applications"
+
+brewfile_path: "{{ dotfiles_dir }}/Brewfile"
+
+git_default_branch: main
+git_pull_rebase: "false"

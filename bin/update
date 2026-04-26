@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#
+# update — bring this Mac up to date across the package managers we use.
+# Replaces the legacy single-line `update` alias so failures fail loud
+# instead of being swallowed by `;` chaining.
+
+set -euo pipefail
+
+step() { printf '\n\033[1;34m==>\033[0m %s\n' "$*"; }
+
+step "macOS software updates"
+sudo softwareupdate --install --all
+
+step "Homebrew: update metadata"
+brew update
+
+step "Homebrew: upgrade formulae"
+brew upgrade
+
+step "Homebrew: upgrade casks"
+brew upgrade --cask
+
+if command -v mas >/dev/null 2>&1; then
+  step "Mac App Store upgrades"
+  mas upgrade
+fi
+
+step "Homebrew: cleanup"
+brew cleanup
+
+if command -v npm >/dev/null 2>&1; then
+  step "npm: update global packages"
+  npm update -g
+fi
+
+if command -v gem >/dev/null 2>&1 && [ -w "$(gem environment gemdir)" ]; then
+  step "RubyGems: update + cleanup"
+  gem update
+  gem cleanup
+fi
+
+printf '\n\033[1;32m==>\033[0m All updates complete.\n'

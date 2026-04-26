@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+alias update="$HOME/.dotfiles/bin/update"
+alias l='ls -GhA'
+alias ll='ls -GhAl'
+alias ~="cd $HOME"
+alias ..="cd .."
+alias reload="exec ${SHELL} -l"
+alias bci="brew cask install"
+alias bi="brew install"

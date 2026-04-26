@@ -1,0 +1,40 @@
+name: Integration (macOS)
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 17 * * 4" # Every Thursday 5:00PM UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: dotfiles
+
+      - name: Place repo at $HOME/.dotfiles
+        run: |
+          rsync -a dotfiles/ "$HOME/.dotfiles/"
+          ls -la "$HOME/.dotfiles"
+
+      - name: Install Ansible
+        run: brew install ansible
+
+      - name: Install Galaxy collections
+        run: ansible-galaxy collection install -r "$HOME/.dotfiles/ansible/requirements.yml"
+
+      - name: Run integration suite
+        env:
+          CI: "true"
+          ANSIBLE_FORCE_COLOR: "true"
+        run: "$HOME/.dotfiles/ansible/tests/integration/run.sh"
+
+      - name: Show ansible version on failure
+        if: failure()
+        run: ansible --version

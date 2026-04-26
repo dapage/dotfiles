@@ -1,0 +1,36 @@
+---
+# Unit test: loads group_vars and asserts invariants about playbook inputs.
+# Runs on any platform — no macOS required.
+- name: Unit — playbook inputs are well-formed
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars_files:
+    - ../../group_vars/all.yml
+
+  tasks:
+    - name: dotfiles var is a non-empty list
+      ansible.builtin.assert:
+        that:
+          - dotfiles is iterable
+          - dotfiles | length > 0
+          - dotfiles | unique | length == dotfiles | length
+        fail_msg: "dotfiles must be a unique non-empty list"
+
+    - name: directories var is a non-empty list
+      ansible.builtin.assert:
+        that:
+          - directories is iterable
+          - directories | length > 0
+
+    - name: brewfile_path is set
+      ansible.builtin.assert:
+        that:
+          - brewfile_path is defined
+          - brewfile_path | length > 0
+
+    - name: dotfiles_dir is set
+      ansible.builtin.assert:
+        that:
+          - dotfiles_dir is defined
+          - dotfiles_dir | length > 0

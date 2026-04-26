@@ -1,0 +1,46 @@
+name: Lint
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Ansible and linters
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible ansible-lint yamllint
+
+      - name: Install Galaxy collections
+        run: ansible-galaxy collection install -r ansible/requirements.yml
+
+      - name: Ansible syntax-check
+        working-directory: ansible
+        run: ansible-playbook playbook.yml --syntax-check
+
+      - name: ansible-lint
+        working-directory: ansible
+        run: ansible-lint playbook.yml
+
+      - name: yamllint
+        run: yamllint ansible/ .github/
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: shellcheck (new scripts only)
+        run: shellcheck bootstrap.sh ansible/tests/integration/run.sh bin/update

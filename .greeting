@@ -1,0 +1,4 @@
+#!/usr/bin/env zsh
+date
+if command -v figlet >/dev/null 2>&1; then figlet -f slant "Hello Dusty!"; fi
+if command -v fortune >/dev/null 2>&1; then fortune; fi
