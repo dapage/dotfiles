@@ -1,5 +1,6 @@
 brew "tree"
 brew "ansible"
+brew "bats-core"
 brew "ffmpeg"
 brew "figlet"
 brew "fortune"
@@ -32,7 +33,7 @@ cask "appcleaner"
 cask "blu-ray-player-pro"
 cask "claude"
 cask "claude-code"
-cask "corretto@8"
+cask "crossover"
 cask "docker-desktop"
 cask "filebot"
 cask "github"
@@ -43,30 +44,22 @@ cask "kaleidoscope"
 cask "ledger-wallet"
 cask "logi-options+"
 cask "makemkv"
-cask "nvidia-geforce-now"
-cask "ollama-app"
-cask "pdf-expert"
-cask "raspberry-pi-imager"
-cask "shadow"
 cask "spotify"
 cask "tower"
 cask "visual-studio-code"
 cask "vlc"
-cask "zulu"
 mas "Amphetamine", id: 937984704
 mas "Bear", id: 1091189122
 mas "Craft", id: 1487937127
-mas "DaftMusic", id: 6748985865
-mas "Deliveries", id: 290986013
 mas "Developer", id: 640199958
+mas "Enclave AI", id: 6476614556
 mas "Evernote", id: 406056744
 mas "GarageBand", id: 682658836
 mas "Home Assistant", id: 1099568401
-mas "HP Easy Scan", id: 967004861
-mas "HP Smart", id: 1474276998
+mas "HP", id: 1474276998
+mas "iMovie", id: 408981434
 mas "Jump Desktop", id: 524141863
 mas "Keynote", id: 361285480
-mas "Magnet", id: 441258766
 mas "Microsoft Excel", id: 462058435
 mas "Microsoft OneNote", id: 784801555
 mas "Microsoft Outlook", id: 985367838
@@ -85,9 +78,7 @@ mas "Transmit", id: 1436522307
 mas "UTM", id: 1538878817
 mas "Xcode", id: 497799835
 vscode "anthropic.claude-code"
-vscode "auguwu.opentofu-vscode"
 vscode "bbenoist.nix"
-vscode "github.copilot-chat"
 vscode "github.vscode-github-actions"
 vscode "jetmartin.bats"
 vscode "mechatroner.rainbow-csv"
