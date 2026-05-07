@@ -20,10 +20,13 @@ setup() {
 }
 
 @test "M2: every zsh plugin in zsh_plugins.yml has a 40-char SHA pin" {
-  # Five plugins listed; each must have a `version:` line with a SHA.
-  local n
-  n=$(grep -cE '^[[:space:]]+version:[[:space:]]+[0-9a-f]{40}' "$REPO_ROOT/ansible/tasks/zsh_plugins.yml")
-  [ "$n" -eq 5 ]
+  # Each plugin entry must have a `version:` line with a SHA. Count must
+  # equal the number of plugin entries (`name:` lines under the loop).
+  local pins names
+  pins=$(grep -cE '^[[:space:]]+version:[[:space:]]+[0-9a-f]{40}' "$REPO_ROOT/ansible/tasks/zsh_plugins.yml")
+  names=$(grep -cE '^[[:space:]]+- name:[[:space:]]' "$REPO_ROOT/ansible/tasks/zsh_plugins.yml")
+  [ "$pins" -eq "$names" ]
+  [ "$pins" -gt 0 ]
 }
 
 @test "M3: requirements.yml caps community.general's upper bound" {
