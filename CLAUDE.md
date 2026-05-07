@@ -2,6 +2,20 @@
 
 Guidance for Claude Code (and humans) working in this repo.
 
+## Project goal: cross-OS dotfiles
+
+These dotfiles are intended to work on every OS the repo owner uses —
+macOS, Linux, and Windows (under Git Bash / MSYS2 / WSL, since native
+Windows zsh is not a target). When adding behavior:
+
+- Prefer logic that works everywhere over macOS-only shortcuts.
+- When something genuinely is OS-specific (e.g. `defaults write`, Homebrew,
+  `systemd`), gate it on `$OSTYPE` or a capability check (`(( $+commands[brew] ))`)
+  rather than assuming the host.
+- The macOS bootstrap path (`bootstrap.sh` + Ansible) is the most
+  thoroughly tested today; Linux/Windows parity is a direction of travel,
+  not a current guarantee — call out gaps when you see them.
+
 ## Test-driven development
 
 This repo follows TDD. **Write the test first.**
