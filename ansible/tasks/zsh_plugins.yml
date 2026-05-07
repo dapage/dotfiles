@@ -22,8 +22,5 @@
     - name: zsh-history-substring-search
       repo: https://github.com/zsh-users/zsh-history-substring-search
       version: 14c8d2e0ffaee98f2df9850b19944f32546fdea5
-    - name: zsh-interactive-cd
-      repo: https://github.com/changyuheng/zsh-interactive-cd
-      version: e7d4802aa526ec069dafec6709549f4344ce9d4a
   loop_control:
     label: "{{ item.name }}"
