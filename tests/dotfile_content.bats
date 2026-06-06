@@ -113,3 +113,47 @@ setup() {
   # Whatever guard we use must come before the eval line.
   ! grep -qE '^[[:space:]]*eval[[:space:]]+"\$\(ssh-agent[[:space:]]+-s\)"[[:space:]]*$' "$REPO_ROOT/.init"
 }
+
+# --- H7: infisical-env loads Infisical machine-identity creds from 1Password ---
+
+# Extract just the infisical-env function body so secret-shape checks are
+# scoped to it (avoids false positives from unrelated hex elsewhere in
+# .functions, e.g. a future function that references a git SHA).
+infisical_env_body() {
+  awk '/^function infisical-env\(\)/,/^}/' "$REPO_ROOT/.functions"
+}
+
+@test "H7.a: .functions defines infisical-env" {
+  grep -qE '^function infisical-env\(\)' "$REPO_ROOT/.functions"
+}
+
+@test "H7.b: infisical-env reads each secret via op (literals would fail this)" {
+  # If someone "fixes" a broken op call by pasting the raw client ID /
+  # secret / project ID, the $(op read ...) shape goes away and this fails.
+  # That's the regression we care about — not the broader "any hex in the
+  # file" check, which would false-positive on git SHAs.
+  local body
+  body="$(infisical_env_body)"
+  echo "$body" | grep -qE 'CLIENT_ID=\$\(op read "op://Private/infisical-iac-runner/'
+  echo "$body" | grep -qE 'CLIENT_SECRET=\$\(op read "op://Private/infisical-iac-runner/'
+  echo "$body" | grep -qE 'TF_VAR_infisical_project_id=\$\(op read "op://Private/infisical-iac-runner/'
+}
+
+@test "H7.c: infisical-env exports each documented env var" {
+  # Defense in depth against accidental deletion of one export line during
+  # a future refactor. Separate assertions (not a `grep -c` count) so the
+  # failure message names the missing var.
+  local body
+  body="$(infisical_env_body)"
+  echo "$body" | grep -qE '^[[:space:]]*export INFISICAL_API_URL='
+  echo "$body" | grep -qE '^[[:space:]]*export INFISICAL_UNIVERSAL_AUTH_CLIENT_ID='
+  echo "$body" | grep -qE '^[[:space:]]*export INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET='
+  echo "$body" | grep -qE '^[[:space:]]*export TF_VAR_infisical_project_id='
+  echo "$body" | grep -qE '^[[:space:]]*export INFISICAL_PROJECT_ID='
+}
+
+@test "H7.d: Brewfile installs 1password-cli (the op binary)" {
+  # infisical-env hard-depends on `op`. The cask "1password" installs the
+  # GUI app only; the CLI is a separate formula.
+  grep -qE '^brew "1password-cli"' "$REPO_ROOT/Brewfile"
+}

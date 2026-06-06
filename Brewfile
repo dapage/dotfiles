@@ -1,4 +1,5 @@
 brew "tree"
+brew "1password-cli"
 brew "ansible"
 brew "bats-core"
 brew "ffmpeg"
