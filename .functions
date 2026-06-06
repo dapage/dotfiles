@@ -188,3 +188,16 @@ function o() {
 function tre() {
 	tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;
 }
+
+# Load self-hosted Infisical machine-identity creds from 1Password into the
+# current shell. Used by OpenTofu modules in homelab-iac for plan/apply auth.
+# Token TTL is whatever the Infisical machine identity is configured for —
+# check the dashboard, not this function.
+function infisical-env() {
+	export INFISICAL_API_URL="https://infisical.ts.dusty.page/api";
+	export INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=$(op read "op://Private/infisical-iac-runner/username");
+	export INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=$(op read "op://Private/infisical-iac-runner/credential");
+	export TF_VAR_infisical_project_id=$(op read "op://Private/infisical-iac-runner/project_id");
+	export INFISICAL_PROJECT_ID="$TF_VAR_infisical_project_id";
+	echo "Infisical session loaded";
+}
