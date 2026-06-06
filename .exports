@@ -39,6 +39,10 @@ export HOMEBREW_NO_ANALYTICS=1
 export ANDROID_HOME="$HOME/Library/Android/sdk"
 export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
 
+# LM Studio CLI (`lms`). Installer dumps this line into .bash_profile / .profile
+# / .zshrc by default; keep the single canonical copy here instead.
+export PATH="$PATH:$HOME/.lmstudio/bin"
+
 # pyenv — binary comes from brew; only export PYENV_ROOT for installed versions.
 export PYENV_ROOT="$HOME/.pyenv"
 

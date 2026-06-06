@@ -154,6 +154,7 @@ infisical_env_body() {
 
 @test "H7.d: Brewfile installs 1password-cli (the op binary)" {
   # infisical-env hard-depends on `op`. The cask "1password" installs the
-  # GUI app only; the CLI is a separate formula.
-  grep -qE '^brew "1password-cli"' "$REPO_ROOT/Brewfile"
+  # GUI app only; the CLI is a separate package — Homebrew ships it as a
+  # cask, but accept the formula form too in case upstream changes.
+  grep -qE '^(brew|cask) "1password-cli"' "$REPO_ROOT/Brewfile"
 }
