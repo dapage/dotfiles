@@ -89,6 +89,17 @@ idempotency (`changed=0`).
 - `develop` — integration branch; feature branches merge here first.
 - feature branches — branch from `develop`, PR into `develop`.
 
+## Manual steps after bootstrap
+
+Some apps can't be Homebrew-managed and need a manual install after
+`bootstrap.sh` finishes:
+
+- **MakeMKV** — dropped from `Brewfile`; its cask is permanently disabled
+  in Homebrew because the app isn't code-signed and fails the macOS
+  Gatekeeper check. Download it directly from
+  [makemkv.com](https://www.makemkv.com/) and allow it via
+  System Settings → Privacy & Security → "Open Anyway".
+
 ## Legacy
 
 `.macos` has been migrated into `ansible/tasks/macos_defaults.yml`.
