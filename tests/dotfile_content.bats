@@ -158,3 +158,28 @@ infisical_env_body() {
   # cask, but accept the formula form too in case upstream changes.
   grep -qE '^(brew|cask) "1password-cli"' "$REPO_ROOT/Brewfile"
 }
+
+# --- H8: LM Studio installer PATH injection stays in .exports only ---
+
+@test "H8.a: .zshrc does not contain an LM Studio PATH line" {
+  # LM Studio's CLI installer re-appends this block to .zshrc/.bash_profile/
+  # .profile on every install/update. The canonical, portable copy lives in
+  # .exports (sourced via .profile) — duplicate copies here just append to
+  # PATH a second time per shell.
+  run grep -niE 'lmstudio|lm studio' "$REPO_ROOT/.zshrc"
+  [ "$status" -ne 0 ]
+}
+
+@test "H8.b: .bash_profile does not contain an LM Studio PATH line" {
+  run grep -niE 'lmstudio|lm studio' "$REPO_ROOT/.bash_profile"
+  [ "$status" -ne 0 ]
+}
+
+@test "H8.c: .profile does not contain an LM Studio PATH line" {
+  run grep -niE 'lmstudio|lm studio' "$REPO_ROOT/.profile"
+  [ "$status" -ne 0 ]
+}
+
+@test "H8.d: .exports holds the canonical portable LM Studio PATH entry" {
+  grep -qE '^export PATH="\$PATH:\$HOME/\.lmstudio/bin"' "$REPO_ROOT/.exports"
+}
