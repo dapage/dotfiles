@@ -112,8 +112,6 @@ cask "ledger-wallet"
 cask "lm-studio", args: { appdir: "/Applications" }
 # Software for Logitech devices
 cask "logi-options+"
-# Video format converter (transcoder)
-cask "makemkv"
 # Music streaming service
 cask "spotify"
 # Video game digital distribution service
